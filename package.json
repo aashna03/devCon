@@ -1,0 +1,19 @@
+{
+  "name": "devcon",
+  "version": "1.0.0",
+  "description": "lets developers connect",
+  "main": "index.js",
+  "scripts": {
+    "start" : "node src/app.js",
+    "dev" : "nodemon src/app.js"
+  },
+  "keywords": [
+    "nodejs",
+    "javascript"
+  ],
+  "author": "Aashna Agarwal",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
