@@ -10,8 +10,7 @@ const User = require("./models/user");
 // to covert json incoming coverts it into JS object and adds it into the request body again
 app.use(express.json());
 
-app.post("/signup", async(req, res) => {
-
+app.post("/signup", async(req, res) => {  
     // this is JS object
     // const userObj = {
     //     firstName: "Aashna",
@@ -87,8 +86,22 @@ app.patch("/user", async(req, res) => {
     const userId = req.body.userId;
     const data = req.body;
 
+
+
     try{
-        await User.findByIdAndUpdate({ _id: userId}, data);
+        const ALLOWED_UPDATES = [
+            "userID", "skills", "photoUrl", "about", "gender", "age"
+        ];
+        const isUpdateAllowed = Object.keys(data).every((key) => 
+            ALLOWED_UPDATES.includes(key)
+        )
+        if(!isUpdateAllowed){
+            throw new Error("Update not allowed")
+        }
+        await User.findByIdAndUpdate({ _id: userId}, data, {
+            returnDocument: "after",
+            runValidators: true
+        });
         res.send("User updated successfully")
     }catch(err){
         res.status(400).send("Something went wrong")
