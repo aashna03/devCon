@@ -1,16 +1,20 @@
 const express = require("express");
+// create express app
 const app = express();
 const bcrypt = require("bcrypt");
-
+const cookieParser = require("cookie-parser");
 require('dotenv').config();
 const {connectDB} =  require("./config/database.js")
 const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validation.js");  
-
+const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth.js");
 
 // this is a middleware which will be activated for all the routes
 // to covert json incoming coverts it into JS object and adds it into the request body again
 app.use(express.json());
+// middleware to parse cookies
+app.use(cookieParser());
 
 // signup API 
 app.post("/signup", async(req, res) => {  
@@ -72,12 +76,47 @@ app.post("/login", async(req, res) => {
         if(!isPasswordMatch){
             return res.status(400).send("Invalid credentials");
         }
+        // password is correct  
+        // create a JWT token
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // console.log(token);
+
+        // Add the token to cookie and send response back to user
+        res.cookie("token", token)
+
 
         res.send("Login successful");
     } catch(err){
         res.status(400).send(`Error:  ${err.message}`)
     }
 })
+
+// profile API
+app.get("/profile", userAuth, async(req, res) => {
+    try{
+        // const cookies = req.cookies;
+        // // console.log(cookies);
+        // const { token } = cookies;
+        // if(!token){
+        //     throw new Error("Invalid Token")
+        // }
+        // // validate the token
+        // const decodedMessage = jwt.verify(token, process.env.JWT_SECRET)
+        // const {_id} = decodedMessage;
+        // // console.log(_id)
+        // const user = await User.findById(_id);
+        // if(!user){
+        //     throw new Error("User not found")
+        // }
+        // res.send(user)
+
+        const user = req.user;
+        res.send(user);
+    }catch(err){
+        res.status(401).send(`Error:  ${err.message}`)
+    }
+})
+
 
 // dummy - get user by email
 app.get("/user", async(req, res) => {
@@ -97,6 +136,7 @@ app.get("/user", async(req, res) => {
 })
 
 // dummy - Feed API - GET/feed - get all users from the database
+
 app.get("/feed", async(req, res) => {
     try{
         const users = await User.find({})
