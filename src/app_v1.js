@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 require('dotenv').config();
 const {connectDB} =  require("./config/database.js")
-const User = require("./models/user");
+const User = require("./models/user.js");
 const { validateSignUpData } = require("./utils/validation.js");  
 const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middlewares/auth.js");
@@ -18,9 +18,28 @@ app.use(cookieParser());
 
 // signup API 
 app.post("/signup", async(req, res) => {  
+    // this is JS object
+    // const userObj = {
+    //     firstName: "Aashna",
+    //     lastName: "Agarwal",
+    //     emailId:"aashna@agarwal.com",
+    //     password: "aashna@a6"
+    // }
+    // // creating a new instance of User model -- create new user with the above data 
+    // const user = new User(userObj);
+
+    // const user = new User({
+    //     firstName: "Aashna",
+    //     lastName: "Agarwal",
+    //     emailId:"aashna@agarwal.com",
+    //     password: "aashna@a6"
+    // })
+    
+
     try{
         // Validation of the incoming data
         validateSignUpData(req);
+
         const { firstName, lastName, emailId, password } = req.body;
         
         // Encrypt the password before saving
@@ -38,6 +57,7 @@ app.post("/signup", async(req, res) => {
     } catch(err){
         res.status(400).send(`Error:  ${err.message}`)
     }
+
 })
 
 // login API
@@ -59,9 +79,11 @@ app.post("/login", async(req, res) => {
         // password is correct  
         // create a JWT token
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // console.log(token);
 
         // Add the token to cookie and send response back to user
         res.cookie("token", token)
+
 
         res.send("Login successful");
     } catch(err){
@@ -72,10 +94,101 @@ app.post("/login", async(req, res) => {
 // profile API
 app.get("/profile", userAuth, async(req, res) => {
     try{
+        // const cookies = req.cookies;
+        // // console.log(cookies);
+        // const { token } = cookies;
+        // if(!token){
+        //     throw new Error("Invalid Token")
+        // }
+        // // validate the token
+        // const decodedMessage = jwt.verify(token, process.env.JWT_SECRET)
+        // const {_id} = decodedMessage;
+        // // console.log(_id)
+        // const user = await User.findById(_id);
+        // if(!user){
+        //     throw new Error("User not found")
+        // }
+        // res.send(user)
+
         const user = req.user;
         res.send(user);
     }catch(err){
         res.status(401).send(`Error:  ${err.message}`)
+    }
+})
+
+
+// dummy - get user by email
+app.get("/user", async(req, res) => {
+    const userEmail = req.body.emailId;
+
+    try{
+        // get user by email
+        const user = await User.find({ emailId: userEmail })
+        if(user.length === 0){
+            res.status(404).send("User Not Found")
+        }
+        res.send(user)
+
+    }catch(err){
+        res.status(400).send("Something went wrong")
+    }
+})
+
+// dummy - Feed API - GET/feed - get all users from the database
+
+app.get("/feed", async(req, res) => {
+    try{
+        const users = await User.find({})
+        res.send(users)
+    }
+    catch(err){
+        res.status(400).send("Something went wrong")
+    }
+})
+
+// delete user by id
+app.delete("/user", async(req, res) => {
+    const userId = req.body.userId;
+    try{
+        // const user = await User.findByIdAndDelete({ _id: userId });
+        const user = await User.findByIdAndDelete(userId);
+        res.send("User deleted Successfully")
+    }catch(err){
+        res.status(400).send("Something went wrong")
+    }
+})
+
+
+// update user of the user
+app.patch("/user/:userId", async(req, res) => {
+    const userId = req.params?.userId;
+    const data = req.body;
+    console.log(userId);
+    
+
+    try{
+        const ALLOWED_UPDATES = [
+            "skills", "photoUrl", "about", "gender", "age"
+        ];
+        const isUpdateAllowed = Object.keys(data).every((key) => 
+            ALLOWED_UPDATES.includes(key)
+        )
+        if(!isUpdateAllowed){
+            throw new Error("Update not allowed")
+        }
+        if(data?.skills?.length > 10){
+            console.log("skills addition");
+            
+            throw new Error("Skills cannot be more than 10")
+        }
+        await User.findByIdAndUpdate({ _id: userId}, data, {
+            returnDocument: "after",
+            runValidators: true
+        });
+        res.send("User updated successfully")
+    }catch(err){
+        res.status(400).send(`Something went wrong ${err}`)
     }
 })
 
