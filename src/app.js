@@ -12,6 +12,7 @@ const { validateSignUpData } = require("./utils/validation.js");
 // to covert json incoming coverts it into JS object and adds it into the request body again
 app.use(express.json());
 
+// signup API 
 app.post("/signup", async(req, res) => {  
     // this is JS object
     // const userObj = {
@@ -55,7 +56,30 @@ app.post("/signup", async(req, res) => {
 
 })
 
-// get user by email
+// login API
+app.post("/login", async(req, res) => {
+    try{
+        const { emailId, password } = req.body;
+        // find user by email id
+        const user = await User.findOne({ emailId: emailId });
+        // if user is not found with the given email id then send 404 response
+        if(!user){
+            // never use email not in db as it can be used for enumeration attack - it is like exposing extra info, instead use invalid credentials
+            return res.status(404).send("Invalid credentials");
+        } 
+        // compare the password with the hashed password stored in the database  
+        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        if(!isPasswordMatch){
+            return res.status(400).send("Invalid credentials");
+        }
+
+        res.send("Login successful");
+    } catch(err){
+        res.status(400).send(`Error:  ${err.message}`)
+    }
+})
+
+// dummy - get user by email
 app.get("/user", async(req, res) => {
     const userEmail = req.body.emailId;
 
@@ -72,7 +96,7 @@ app.get("/user", async(req, res) => {
     }
 })
 
-// Feed API - GET/feed - get all users from the database
+// dummy - Feed API - GET/feed - get all users from the database
 app.get("/feed", async(req, res) => {
     try{
         const users = await User.find({})
