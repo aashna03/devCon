@@ -1,10 +1,12 @@
 const express = require("express");
-require('dotenv').config();
-
-const {connectDB} =  require("./config/database.js")
 const app = express();
+const bcrypt = require("bcrypt");
 
+require('dotenv').config();
+const {connectDB} =  require("./config/database.js")
 const User = require("./models/user");
+const { validateSignUpData } = require("./utils/validation.js");  
+
 
 // this is a middleware which will be activated for all the routes
 // to covert json incoming coverts it into JS object and adds it into the request body again
@@ -27,15 +29,28 @@ app.post("/signup", async(req, res) => {
     //     emailId:"aashna@agarwal.com",
     //     password: "aashna@a6"
     // })
-
-    const user = new User(req.body)
+    
 
     try{
+        // Validation of the incoming data
+        validateSignUpData(req);
+
+        const { firstName, lastName, emailId, password } = req.body;
+        
+        // Encrypt the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // creating new user instance with the incoming data
+        const user = new User({
+            firstName, 
+            lastName, 
+            emailId, 
+            password: hashedPassword
+        })
         // save data in database
         await user.save();
         res.send("User added successfully")
     } catch(err){
-        res.status(400).send(`Error saving the  user ${err.message}`)
+        res.status(400).send(`Error:  ${err.message}`)
     }
 
 })
