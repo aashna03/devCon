@@ -52,14 +52,16 @@ app.post("/login", async(req, res) => {
             return res.status(404).send("Invalid credentials");
         } 
         // compare the password with the hashed password stored in the database  
-        const isPasswordMatch = await bcrypt.compare(password, user.password);
+        // const isPasswordMatch = await bcrypt.compare(password, user.password);
+        const isPasswordMatch = await user.validatePassword(password);
         if(!isPasswordMatch){
             return res.status(400).send("Invalid credentials");
         }
         // password is correct  
         // create a JWT token
-        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
-
+        // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        // offloaded the token generation logic to the model method in user.js sechma methods
+        const token = await user.getJWT();
         // Add the token to cookie and send response back to user
         res.cookie("token", token)
 
@@ -75,7 +77,7 @@ app.get("/profile", userAuth, async(req, res) => {
         const user = req.user;
         res.send(user);
     }catch(err){
-        res.status(401).send(`Error:  ${err.message}`)
+        res.status(401).send(`Error: ${err.message}`)
     }
 })
 
