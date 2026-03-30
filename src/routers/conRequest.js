@@ -73,18 +73,19 @@ conRequestRouter.post("/request/review/:status/:requestId", userAuth, async(req,
         // loggedInUser = Elon who can accept or reject the request
         // check if requestId is valid
         // if in the database we have a document with {requestId, status as interested, toUserId as loggedIn user}
-        const isRequestValid = await ConnectionRequest.findOne({
+        const conRequest = await ConnectionRequest.findOne({
             _id : requestId,
             status : "interested",
             toUserId : loggedInUser._id 
         });
 
-        if(!isRequestValid){
+        if(!conRequest){
             throw new Error("The request is not valid");   
         }
 
-        loggedInUser.status = status;
-        await loggedInUser.save();
+        // loggedInUser.status = status;
+        conRequest.status = status;
+        await conRequest.save();
         
         res.json({
             message: `Request ${status} successfully`
