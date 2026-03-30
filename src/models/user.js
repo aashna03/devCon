@@ -40,12 +40,17 @@ const userSchema = mongoose.Schema({
     },
     gender : {
         type: String,
-        validate(value){
-            // this validate function will not work by default if doing the PATCH, for new object it will happen
-            if(!["male","female", "others"].includes(value)){
-                throw new Error("Gender data is not valid")
-            }
+        enum: {
+            values: ["male", "female", "others"],
+            message: `{VALUE} gender is not valid`
         }
+        // or
+        // validate(value){
+        //     // this validate function will not work by default if doing the PATCH, for new object it will happen
+        //     if(!["male","female", "others"].includes(value)){
+        //         throw new Error("Gender data is not valid")
+        //     }
+        // }
     },
     about:{
         type: String,
@@ -66,6 +71,8 @@ const userSchema = mongoose.Schema({
 {
     timestamps : true
 })
+
+userSchema.index({firstName: 1, lastName: 1}); // for searching users by first name and last name
 
 userSchema.methods.getJWT = async function(){    
     const user = this;

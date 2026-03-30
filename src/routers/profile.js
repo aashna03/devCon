@@ -46,9 +46,9 @@ profileRouter.get("/profile/password-change", userAuth, async(req, res) =>{
         if(newPasswordInput != reenteredPasswordInput){
             throw new Error("The new password and the re-entered password doesnot match");
         }
-        // if(!validator.isStrongPassword(password)){
-        //     throw new Error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol");
-        // }
+        if(!validator.isStrongPassword(newPasswordInput)){
+            throw new Error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol");
+        }
         const hashedPassword = await bcrypt.hash(newPasswordInput, 10);
         const loggedInUser = req.user;
         loggedInUser.password = hashedPassword;
