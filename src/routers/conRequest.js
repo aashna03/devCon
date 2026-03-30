@@ -57,5 +57,49 @@ conRequestRouter.post("/request/send/:status/:toUserId", userAuth, async(req, re
     }
 })
 
+conRequestRouter.post("/request/review/:status/:requestId", userAuth, async(req, res) => {
+
+    try {
+        const { status, requestId } = req.params;
+        const loggedInUser = req.user;
+
+        // check if status is valid
+        const acceptedStatus = ["accepted", "rejected"];
+        if(!acceptedStatus.includes(status)){
+            throw new Error("Invalid Status");
+        }
+
+        // suppose Aashna ==> Elon
+        // loggedInUser = Elon who can accept or reject the request
+        // check if requestId is valid
+        // if in the database we have a document with {requestId, status as interested, toUserId as loggedIn user}
+        const isRequestValid = await ConnectionRequest.findOne({
+            _id : requestId,
+            status : "interested",
+            toUserId : loggedInUser._id 
+        });
+
+        if(!isRequestValid){
+            throw new Error("The request is not valid");   
+        }
+
+        loggedInUser.status = status;
+        await loggedInUser.save();
+        
+        res.json({
+            message: `Request ${status} successfully`
+        })
+
+
+        
+    } catch (err) {
+        res.status(400).json({
+            message: `Error: ${err.message}`
+        });
+    }
+
+
+})
+
 
 module.exports = conRequestRouter;
