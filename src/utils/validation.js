@@ -24,17 +24,6 @@ const validateEditProfileData = (req) => {
     isAllowedFields = Object.keys(req.body).every(body_field => allowedEditFields.includes(body_field));
     return isAllowedFields;
 
-    if(!firstName){
-        console.log("firstName" +  firstName);
-        
-        throw new Error("First name is required");
-    }
-    if(!validator.isEmail(emailId)){
-        throw new Error("Invalid email address");
-    }
-    if(!validator.isStrongPassword(password)){
-        throw new Error("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one symbol");
-    }
 };
 
 module.exports = {
