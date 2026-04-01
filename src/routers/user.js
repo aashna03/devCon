@@ -2,6 +2,7 @@ const express = require("express");
 const userRouter = express.Router();
 const { userAuth } = require("../middlewares/auth.js"); 
 const ConnectionRequest = require("../models/connectionRequest.js");
+const User = require("../models/user");
 
 const USER_SAFE_FIELDS = "firstName lastName profileUrl age gender about skills";
 
@@ -54,6 +55,51 @@ userRouter.get('/user/connections', userAuth, async(req, res) => {
         })
     }
     catch(err){
+        res.status(400).json({
+            message: `Error: ${err.message}`
+        })
+    }
+})
+
+userRouter.get('/user/feed', userAuth, async(req, res) => {
+    try {
+        const loggedInUser = req.user;
+
+        // for pagination we can use skip and limit
+        const skip = parseInt(req.query.page) || 0; // default value is 0
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));; // default value is 10
+
+        const connections = await ConnectionRequest.find({
+            $or:[
+                { fromUserId:loggedInUser._id }, { toUserId: loggedInUser._id }
+            ]
+        })
+        .select('fromUserId toUserId');
+
+        const hiddedUserIds = new Set();
+        connections.forEach((connection) =>{
+            hiddedUserIds.add(connection.fromUserId.toString());
+            hiddedUserIds.add(connection.toUserId.toString());
+        })
+        // console.log("hiddenUserIds: ", hiddedUserIds);
+        const feed_users = await User.find({
+            $and:[
+                { _id: { $nin : [...hiddedUserIds]}}, //  set to array using spread operator
+                // { _id: { $nin : Array.from(hiddedUserIds) } }, // $nin means not in
+                { _id: { $ne: loggedInUser._id } } // $ne means not equal to
+            ]
+        }).select(USER_SAFE_FIELDS)
+          .skip(skip)
+          .limit(limit);
+        // console.log("feed_users: ", feed_users);
+
+        res.json({
+            message: "User feed fetched successfully!!!!",
+            data: feed_users
+        })
+
+        
+    } catch (err) {
         res.status(400).json({
             message: `Error: ${err.message}`
         })
