@@ -9,12 +9,22 @@ const {connectDB} =  require("./config/database.js")
 // const { validateSignUpData } = require("./utils/validation.js");  //  for /signup API
 // const jwt = require("jsonwebtoken"); // for generating JWT token in /login API
 // const { userAuth } = require("./middlewares/auth.js"); // everytime we are hiiting any API when we are logged in
+const cors = require("cors");
 
+// to allow cross-origin requests from frontend (React app)
+
+app.use(
+    cors({
+        origin: "http://localhost:5173", // Replace with your frontend URL
+        credentials: true, // Allow cookies to be sent with requests
+    })
+);
 // this is a middleware which will be activated for all the routes
 // to covert json incoming coverts it into JS object and adds it into the request body again
 app.use(express.json());
 // middleware to parse cookies
 app.use(cookieParser());
+
 
 const authRouter = require("./routers/auth.js");
 const profileRouter = require("./routers/profile.js");
