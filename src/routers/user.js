@@ -4,7 +4,7 @@ const { userAuth } = require("../middlewares/auth.js");
 const ConnectionRequest = require("../models/connectionRequest.js");
 const User = require("../models/user");
 
-const USER_SAFE_FIELDS = "firstName lastName profileUrl age gender about skills";
+const USER_SAFE_FIELDS = "firstName lastName photoURL age gender about skills";
 
 userRouter.get('/user/requests/received', userAuth, async(req, res) => {
     try {
@@ -61,7 +61,7 @@ userRouter.get('/user/connections', userAuth, async(req, res) => {
     }
 })
 
-userRouter.get('/user/feed', userAuth, async(req, res) => {
+userRouter.get('/feed', userAuth, async(req, res) => {
     try {
         const loggedInUser = req.user;
 
@@ -105,8 +105,6 @@ userRouter.get('/user/feed', userAuth, async(req, res) => {
         })
     }
 })
-
-
 
 
 

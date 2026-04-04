@@ -61,6 +61,7 @@ const userSchema = mongoose.Schema({
     },
     photoURL: {
         type: String,
+        default: "https://robohash.org/mail@ashallendesign.co.uk",
         validate(value){
             if(!validator.isURL(value)){
                 throw new Error(`invalid photo URL: ${value}`)
