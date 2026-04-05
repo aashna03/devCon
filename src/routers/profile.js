@@ -18,7 +18,7 @@ profileRouter.get("/profile/view", userAuth, async(req, res) => {
 })
 
 // edit profile API
-profileRouter.get("/profile/edit", userAuth, async(req, res) => {
+profileRouter.patch("/profile/edit", userAuth, async(req, res) => {
     try {
         if(!validateEditProfileData(req)){
             throw new Error("Invalid data for profile update");
@@ -34,12 +34,12 @@ profileRouter.get("/profile/edit", userAuth, async(req, res) => {
         })
         
     } catch (err) {
-        res.status(401).send(`Error: ${err.message}`)
+        res.status(400).json({message: `Error : ${err}`})
     }
 })
 
 // password profile API
-profileRouter.get("/profile/password-change", userAuth, async(req, res) =>{
+profileRouter.patch("/profile/password-change", userAuth, async(req, res) =>{
     try {
         const newPasswordInput = req.body.newPassword;
         const reenteredPasswordInput = req.body.reenteredPassword;
@@ -59,7 +59,7 @@ profileRouter.get("/profile/password-change", userAuth, async(req, res) =>{
 
 
     } catch (err) {
-        res.status(401).send(`Error : ${err}`)
+        res.status(401).json({message: `Error : ${err}`})
     }
 })
 
