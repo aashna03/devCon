@@ -9,7 +9,7 @@ const {connectDB} =  require("./config/database.js")
 // const { validateSignUpData } = require("./utils/validation.js");  //  for /signup API
 // const jwt = require("jsonwebtoken"); // for generating JWT token in /login API
 // const { userAuth } = require("./middlewares/auth.js"); // everytime we are hitting any API when we are logged in
-
+const http = require("http")
 
 // to allow cross-origin requests from frontend (React app)
 const cors = require("cors");
@@ -30,6 +30,7 @@ const authRouter = require("./routers/auth.js");
 const profileRouter = require("./routers/profile.js");
 const conRequestRouter = require("./routers/conRequest.js");
 const userRouter = require("./routers/user.js");
+const initializeSocket = require("./utils/socket.js");
 
 
 app.use('/', authRouter);
@@ -38,11 +39,14 @@ app.use('/', conRequestRouter);
 app.use('/', userRouter);
 
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 connectDB()
     .then(() => {
         console.log("Database connection established");
         // we should connect to db then start listening
-        app.listen(3000, () => {
+        server.listen(3000, () => {
             console.log("server running successfully");
         });
     })
