@@ -8,7 +8,11 @@ const userAuth = async(req, res, next) => {
         const { token } = req.cookies;
         if(!token){
             // throw new Error("Invalid Token")
-            return res.status(401).send("Unauthorized Please Login");
+            return res
+                    .status(401)
+                    .json({
+                        message: "Unauthorized Please Login"
+                    });
         }
         const decodedMessage = jwt.verify(token, process.env.JWT_SECRET)
 
@@ -22,7 +26,11 @@ const userAuth = async(req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        res.status(400).send(`Unauthorized request: ${error.message}`);
+        res
+            .status(401)
+            .json({
+                message : `Unauthorized request: ${error.message}`
+            });
     }
 }
 

@@ -7,13 +7,18 @@ const { validateEditProfileData } = require("../utils/validation.js");
 const validator = require("validator");
 const bcrypt = require("bcrypt")
 
-// view p+rofile API
+// view profile API
 profileRouter.get("/profile/view", userAuth, async(req, res) => {
     try{
         const user = req.user;
-        res.send(user);
+        res
+            .json({
+                data: user
+            });
     }catch(err){
-        res.status(401).send(`Error: ${err.message}`)
+        res
+            .status(400)
+            .send(`Error: ${err.message}`)
     }
 })
 
@@ -28,13 +33,18 @@ profileRouter.patch("/profile/edit", userAuth, async(req, res) => {
         await loggedInUser.save();
         // res.send("Profile updated successfully");
         // or
-        res.json({
-            message: "Profile updated successfully",
-            data: loggedInUser
-        })
+        res
+            .json({
+                message: "Profile updated successfully",
+                data: loggedInUser
+            })
         
     } catch (err) {
-        res.status(400).json({message: `Error : ${err}`})
+        res
+            .status(400)
+            .json({
+                message: `Error : ${err}`
+            })
     }
 })
 
@@ -53,13 +63,18 @@ profileRouter.patch("/profile/password-change", userAuth, async(req, res) =>{
         const loggedInUser = req.user;
         loggedInUser.password = hashedPassword;
         await loggedInUser.save();
-        res.json({
-            "message":"password updated"
-        });
+        res
+            .json({
+                "message":"password updated"
+            });
 
 
     } catch (err) {
-        res.status(401).json({message: `Error : ${err}`})
+        res
+            .status(400)
+            .json({
+                message: `Error : ${err}`
+            })
     }
 })
 

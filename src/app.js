@@ -8,11 +8,11 @@ const {connectDB} =  require("./config/database.js")
 // const User = require("./models/user");
 // const { validateSignUpData } = require("./utils/validation.js");  //  for /signup API
 // const jwt = require("jsonwebtoken"); // for generating JWT token in /login API
-// const { userAuth } = require("./middlewares/auth.js"); // everytime we are hiiting any API when we are logged in
-const cors = require("cors");
+// const { userAuth } = require("./middlewares/auth.js"); // everytime we are hitting any API when we are logged in
+
 
 // to allow cross-origin requests from frontend (React app)
-
+const cors = require("cors");
 app.use(
     cors({
         origin: "http://localhost:5173", // Replace with your frontend URL

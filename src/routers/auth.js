@@ -22,8 +22,13 @@ authRouter.post("/signup", async(req, res) => {
             password: hashedPassword
         })
         // save data in database
-        await user.save();
-        res.send("User added successfully")
+        const savedUser = await user.save();
+        const token = await savedUser.getJWT();
+        res.cookie("token", token);
+        res.json({
+            message : "User added successfully",
+            data : savedUser
+        })
     } catch(err){
         res.status(400).send(`Error:  ${err.message}`)
     }
@@ -44,9 +49,10 @@ authRouter.post("/login", async(req, res) => {
         // const isPasswordMatch = await bcrypt.compare(password, user.password);
         const isPasswordMatch = await user.validatePassword(password);
         if(!isPasswordMatch){
-            return res.status(400).send("Invalid credentials");
+            return res.status(404).send("Invalid credentials");
         }
-        // password is correct  
+        // password is correct 
+         
         // create a JWT token
         // const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
         // offloaded the token generation logic to the model method in user.js sechma methods

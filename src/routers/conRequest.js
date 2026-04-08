@@ -17,10 +17,13 @@ conRequestRouter.post("/request/send/:status/:toUserId", userAuth, async(req, re
 
         // donot send connect request to itself -- handled in pre
 
+        if(toUserId.toString().length > 100){
+            throw new Error("UserId is not valid");
+        }
         // if toUserId is not present in User database send error   
         const isToUserIdPresent = await User.findById(toUserId);
         if(!isToUserIdPresent){
-            throw new Error("toUserId is not valid");
+            throw new Error("UserId is not valid");
         }
 
         // at a time the status between the 2 ids can be 1 only and not both and also multiple hits on api should only update the database not create new documents
@@ -47,13 +50,16 @@ conRequestRouter.post("/request/send/:status/:toUserId", userAuth, async(req, re
 
         await connectionRequest.save();
 
-        res.send(`Request: ${status} \n sent from ${req.user.firstName} to ${isToUserIdPresent.firstName}`);
+        res
+            .json({
+            message: `Request: ${status} \n sent from ${req.user.firstName} to ${isToUserIdPresent.firstName}`
+            });
     }catch(err){
         res
-          .status(400)
-          .json({
-            message: `Error: ${err.message}`
-          });
+            .status(400)
+            .json({
+                message: `Error: ${err.message}`
+            });
     }
 })
 
@@ -73,6 +79,11 @@ conRequestRouter.post("/request/review/:status/:requestId", userAuth, async(req,
         // loggedInUser = Elon who can accept or reject the request
         // check if requestId is valid
         // if in the database we have a document with {requestId, status as interested, toUserId as loggedIn user}
+        
+        if(requestId.toString().length > 100){
+            throw new Error("The request is not valid");
+        }
+        
         const conRequest = await ConnectionRequest.findOne({
             _id : requestId,
             status : "interested",
@@ -87,19 +98,18 @@ conRequestRouter.post("/request/review/:status/:requestId", userAuth, async(req,
         conRequest.status = status;
         await conRequest.save();
         
-        res.json({
-            message: `Request ${status} successfully`
-        })
+        res
+            .json({
+                message: `Request ${status} successfully`
+            })
 
-
-        
     } catch (err) {
-        res.status(400).json({
-            message: `Error: ${err.message}`
-        });
+        res
+            .status(400)
+            .json({
+                message: `Error: ${err.message}`
+            });
     }
-
-
 })
 
 

@@ -49,15 +49,18 @@ userRouter.get('/user/connections', userAuth, async(req, res) => {
             const isSender = row.fromUserId._id.equals(loggedInUser._id);
             return isSender ? row.toUserId : row.fromUserId;
         });
-        res.json({
-            message: "Connections fetched successfully",
-            data: data
-        })
+        res
+            .json({
+                message: "Connections fetched successfully",
+                data: data
+            })
     }
     catch(err){
-        res.status(400).json({
-            message: `Error: ${err.message}`
-        })
+        res
+            .status(400)
+            .json({
+                message: `Error: ${err.message}`
+            })
     }
 })
 
@@ -93,16 +96,19 @@ userRouter.get('/feed', userAuth, async(req, res) => {
           .limit(limit);
         // console.log("feed_users: ", feed_users);
 
-        res.json({
-            message: "User feed fetched successfully!!!!",
-            data: feed_users
-        })
+        res
+            .json({
+                message: "User feed fetched successfully!!!!",
+                data: feed_users
+            })
 
         
     } catch (err) {
-        res.status(400).json({
-            message: `Error: ${err.message}`
-        })
+        res
+            .status(400)
+            .json({
+                message: `Error: ${err.message}`
+            })
     }
 })
 
