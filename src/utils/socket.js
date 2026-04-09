@@ -23,7 +23,6 @@ const initializeSocket = (server) =>{
         socket.on("joinChat", ({userId, targetUserId}) => {
                 // create a unique room name for the two users
                 const roomId = getSecretRoomId(userId, targetUserId);
-                // console.log(`T User ${targetUserId} S user ${userId} joined room ${roomId}`);
                 socket.join(roomId);
         });
 
@@ -46,7 +45,6 @@ const initializeSocket = (server) =>{
 
 
                     const roomId = getSecretRoomId(userId, targetUserId);
-                    console.log(`Message from ${firstName} to room ${roomId}: ${newMessage}`);
                 
                     let chat = await Chat.findOne({
                         participants: {

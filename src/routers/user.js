@@ -71,7 +71,6 @@ userRouter.get('/feed', userAuth, async(req, res) => {
         // for pagination we can use skip and limit
         const skip = parseInt(req.query.page)*10 || 0; // default value is 0
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));; // default value is 10
-        console.log("skip: ", skip, " limit: ", limit);
         const connections = await ConnectionRequest.find({
             $or:[
                 { fromUserId:loggedInUser._id }, { toUserId: loggedInUser._id }
@@ -84,7 +83,6 @@ userRouter.get('/feed', userAuth, async(req, res) => {
             hiddedUserIds.add(connection.fromUserId.toString());
             hiddedUserIds.add(connection.toUserId.toString());
         })
-        // console.log("hiddenUserIds: ", hiddedUserIds);
         const feed_users = await User.find({
             $and:[
                 { _id: { $nin : [...hiddedUserIds]}}, //  set to array using spread operator
@@ -94,7 +92,6 @@ userRouter.get('/feed', userAuth, async(req, res) => {
         }).select(USER_SAFE_FIELDS)
           .skip(skip)
           .limit(limit);
-        // console.log("feed_users: ", feed_users);
 
         res
             .json({
