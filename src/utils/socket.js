@@ -1,7 +1,8 @@
 const socket = require("socket.io");
 const crypto = require("crypto");
 const { Chat } = require("../models/chat.js");
-
+const ConnectionRequest = require("../models/connectionRequest.js");
+const { userAuth } = require("../middlewares/auth.js");
 
 const getSecretRoomId = (userId, targetUserId) => {
     return crypto
@@ -31,6 +32,18 @@ const initializeSocket = (server) =>{
             }) => {
                 
                 try {   
+
+                    const conRequest = await ConnectionRequest.findOne(
+                        {
+                        status : "accepted",
+                        toUserId : {$in: [userId, targetUserId]},
+                        fromUserId : {$in: [userId, targetUserId]}
+                        }
+                    );
+                    if(!conRequest){
+                        throw new Error("The request is not valid");   
+                    }
+
 
                     const roomId = getSecretRoomId(userId, targetUserId);
                     console.log(`Message from ${firstName} to room ${roomId}: ${newMessage}`);

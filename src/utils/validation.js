@@ -19,6 +19,9 @@ const validateEditProfileData = (req) => {
 
     // iterates body_fields => check if it is present in allowedEditFields or not => if all body_fields are present in allowedEditFields then only it will return true otherwise false  
     // Stops iterating immediately if the callback function returns a falsy value for any element.
+    if(Object.keys(req.body)?.firstName?.length > 50){
+        return false;
+    }
     isAllowedFields = Object.keys(req.body).every(body_field => allowedEditFields.includes(body_field));
     return isAllowedFields;
 
