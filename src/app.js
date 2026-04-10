@@ -49,7 +49,6 @@ const conRequestRouter = require("./routers/conRequest.js");
 const userRouter = require("./routers/user.js");
 const chatRouter = require("./routers/chatRouter.js");
 const initializeSocket = require("./utils/socket.js");
-const { prototype } = require("events");
 
 
 app.use('/', authRouter);
@@ -67,10 +66,9 @@ connectDB()
         console.log("Database connection established");
         // we should connect to db then start listening
         const PORT = process.env.PORT || 10000;
-        // server.listen(PORT, () => {
-        //     console.log("server running successfully");
-        // });
-        app.listen(PORT, '0.0.0.0');
+        server.listen(PORT, "0.0.0.0", () => {
+            console.log(`server running successfully on port ${PORT}`);
+        });
 
     })
     .catch((err) => {
