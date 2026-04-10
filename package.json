@@ -1,11 +1,12 @@
 {
   "name": "devcon",
   "version": "1.0.0",
-  "description": "lets developers connect",
-  "main": "index.js",
+  "description": "let developers connect",
+  "main": "app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon src/app.js",
+    "build": "npx esbuild src/app.js --bundle --platform=node --format=cjs --outfile=dist/app.js"
   },
   "keywords": [
     "nodejs",
@@ -23,5 +24,8 @@
     "mongoose": "^9.3.3",
     "socket.io": "^4.8.3",
     "validator": "^13.15.26"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
   }
 }
