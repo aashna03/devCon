@@ -5,6 +5,13 @@ const User = require("../models/user.js");
 const { validateSignUpData } = require("../utils/validation.js");
 const { userAuth } = require("../middlewares/auth.js");
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: 24 * 60 * 60 * 1000,
+};
+
 // signup API 
 authRouter.post("/signup", async(req, res) => {  
     try{
@@ -24,7 +31,7 @@ authRouter.post("/signup", async(req, res) => {
         // save data in database
         const savedUser = await user.save();
         const token = await savedUser.getJWT();
-        res.cookie("token", token);
+        res.cookie("token", token, cookieOptions);
         res.json({
             message : "User added successfully",
             data : savedUser
@@ -58,7 +65,7 @@ authRouter.post("/login", async(req, res) => {
         // offloaded the token generation logic to the model method in user.js sechma methods
         const token = await user.getJWT();
         // Add the token to cookie and send response back to user
-        res.cookie("token", token)
+        res.cookie("token", token, cookieOptions)
 
         // res.send("Login successful");
         res.send(
@@ -74,6 +81,7 @@ authRouter.post("/login", async(req, res) => {
 authRouter.post("/logout", userAuth, async(req, res) => {
     try{
         res.cookie("token", null, {
+            ...cookieOptions,
             expires: new Date(Date.now())
         })
         res.send("Logout successful");

@@ -13,9 +13,26 @@ const http = require("http")
 
 // to allow cross-origin requests from frontend (React app)
 const cors = require("cors");
+const allowedOrigins = [
+    "https://dev-con-web.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+];
+
 app.use(
     cors({
-        origin: "https://dev-con-web.vercel.app/", // Replace with your frontend URL
+        origin: (origin, callback) => {
+            // Allow server-to-server calls and same-origin requests without Origin header.
+            if (!origin) {
+                return callback(null, true);
+            }
+
+            if (allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            return callback(new Error("Not allowed by CORS"));
+        },
         credentials: true, // Allow cookies to be sent with requests
     })
 );
@@ -32,6 +49,7 @@ const conRequestRouter = require("./routers/conRequest.js");
 const userRouter = require("./routers/user.js");
 const chatRouter = require("./routers/chatRouter.js");
 const initializeSocket = require("./utils/socket.js");
+const { prototype } = require("events");
 
 
 app.use('/', authRouter);
@@ -48,9 +66,12 @@ connectDB()
     .then(() => {
         console.log("Database connection established");
         // we should connect to db then start listening
-        server.listen(3000, () => {
-            console.log("server running successfully");
-        });
+        const PORT = process.env.PORT || 10000;
+        // server.listen(PORT, () => {
+        //     console.log("server running successfully");
+        // });
+        app.listen(PORT, '0.0.0.0');
+
     })
     .catch((err) => {
         console.error("Database cannot be connected");
