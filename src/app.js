@@ -15,7 +15,7 @@ const http = require("http")
 const cors = require("cors");
 app.use(
     cors({
-        origin: "dev-con-39r3qbsp3-aashna03s-projects.vercel.app", // Replace with your frontend URL
+        origin: "https://dev-con-web.vercel.app/", // Replace with your frontend URL
         credentials: true, // Allow cookies to be sent with requests
     })
 );

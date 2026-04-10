@@ -14,7 +14,7 @@ const getSecretRoomId = (userId, targetUserId) => {
 const initializeSocket = (server) =>{
     const io = socket(server,{
         cors: {
-            origin: "dev-con-39r3qbsp3-aashna03s-projects.vercel.app",
+            origin: "https://dev-con-web.vercel.app/",
         }
     });
 
